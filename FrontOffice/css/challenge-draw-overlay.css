@@ -1,0 +1,374 @@
+.hb-challenge-draw-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 99985;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(15, 42, 28, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-sizing: border-box;
+    font-family: "Poppins", system-ui, sans-serif;
+}
+
+.hb-challenge-draw-overlay.is-hidden {
+    display: none !important;
+}
+
+.hb-challenge-draw-overlay__panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.35rem;
+    max-width: 420px;
+    width: 100%;
+}
+
+.hb-challenge-draw-machine {
+    position: relative;
+    width: min(92vw, 280px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 24px 40px rgba(212, 5, 6, 0.32));
+}
+
+.hb-challenge-draw-machine::before {
+    content: "";
+    position: absolute;
+    top: 6%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 5, 6, 0.18) 0%, transparent 68%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hb-challenge-draw-machine .globe-stack {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hb-challenge-draw-machine .globe-cap {
+    position: relative;
+    width: 64px;
+    height: 14px;
+    margin-bottom: -2px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #f04849 0%, #D40506 55%, #B80405 100%);
+    border: 2px solid rgba(255, 200, 200, 0.4);
+    box-shadow: 0 2px 6px rgba(138, 3, 4, 0.3), inset 0 1px 2px rgba(255, 200, 200, 0.35);
+    z-index: 5;
+}
+
+.hb-challenge-draw-machine .cap-knob {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 32% 28%, #FFF8E1 0%, #FFD54F 40%, #FFB300 75%, #FF8F00 100%);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2), inset 0 1px 3px rgba(255, 255, 255, 0.75);
+    border: 1px solid #FFE082;
+}
+
+.hb-challenge-draw-machine .globe {
+    width: 260px;
+    height: 260px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    position: relative;
+    background:
+        radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.88) 0%, transparent 42%),
+        radial-gradient(circle at 72% 78%, rgba(212, 5, 6, 0.05) 0%, transparent 38%),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.1) 0%, rgba(240, 248, 255, 0.32) 100%);
+    border: 3px solid rgba(255, 255, 255, 0.82);
+    box-shadow:
+        inset 0 0 55px rgba(255, 255, 255, 0.48),
+        inset -10px -16px 32px rgba(160, 175, 195, 0.1),
+        0 0 36px rgba(212, 5, 6, 0.12),
+        0 8px 24px rgba(100, 110, 120, 0.16);
+    overflow: hidden;
+}
+
+.hb-challenge-draw-machine .globe::before {
+    content: "";
+    position: absolute;
+    top: 10%;
+    left: 6%;
+    width: 42%;
+    height: 18%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.75) 0%, transparent 72%);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.hb-challenge-draw-machine .globe::after {
+    content: "";
+    position: absolute;
+    top: 22%;
+    right: 10%;
+    width: 18%;
+    height: 10%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.hb-challenge-draw-machine .balls-area {
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.hb-challenge-draw-machine .ball {
+    position: absolute;
+    border-radius: 50%;
+    box-shadow:
+        inset -4px -8px 12px rgba(0, 0, 0, 0.12),
+        inset 5px 6px 10px rgba(255, 255, 255, 0.55),
+        0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hb-challenge-draw-machine .globe-neck {
+    width: 48px;
+    height: 18px;
+    margin-top: -4px;
+    background: linear-gradient(180deg, #D40506 0%, #A80405 100%);
+    border-radius: 0 0 6px 6px;
+    box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.12);
+    z-index: 1;
+}
+
+.hb-challenge-draw-machine .base {
+    position: relative;
+    width: 210px;
+    margin-top: -2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    overflow: visible;
+}
+
+.hb-challenge-draw-machine .base-body {
+    width: 100%;
+    height: 178px;
+    background: linear-gradient(95deg, #f04849 0%, #D40506 38%, #B80405 72%, #8A0304 100%);
+    clip-path: polygon(20% 0, 80% 0, 92% 100%, 8% 100%);
+    box-shadow:
+        inset 3px 0 14px rgba(255, 180, 180, 0.3),
+        inset -3px 0 14px rgba(80, 0, 0, 0.2),
+        0 8px 22px rgba(138, 3, 4, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 32px;
+}
+
+.hb-challenge-draw-machine .base-plate {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FFF8E1 0%, #FFD54F 35%, #FFB300 70%, #FF8F00 100%);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.18),
+        inset 0 2px 6px rgba(255, 255, 255, 0.65),
+        inset 0 -3px 8px rgba(230, 81, 0, 0.25);
+    border: 2px solid #FFE082;
+}
+
+.hb-challenge-draw-machine .knob {
+    position: absolute;
+    top: 26%;
+    left: 50%;
+    width: 30px;
+    height: 5px;
+    margin-left: -15px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #FFF8E1 0%, #E65100 45%, #BF360C 55%, #FFF8E1 100%);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.28), 0 1px 1px rgba(255, 255, 255, 0.4);
+    transform-origin: center center;
+}
+
+.hb-challenge-draw-machine .dispenser {
+    position: absolute;
+    bottom: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 66px;
+    height: 46px;
+    border-radius: 33px 33px 6px 6px;
+    background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
+    border: 3px solid #FFB300;
+    box-shadow: inset 0 10px 22px rgba(0, 0, 0, 0.88), 0 0 0 1px #FFE082;
+    overflow: hidden;
+    z-index: 5;
+}
+
+.hb-challenge-draw-machine .winner-slot {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+}
+
+.hb-challenge-draw-machine .winner-slot.is-out {
+    opacity: 1;
+}
+
+.hb-challenge-draw-machine .winner-slot.is-out .ball {
+    animation: hbChallengeBallEject 1s cubic-bezier(0.34, 1.12, 0.5, 1) forwards;
+}
+
+.hb-challenge-draw-machine .winner-slot .ball {
+    position: relative;
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0;
+}
+
+.hb-challenge-draw-machine .winner-slot.is-open .ball {
+    animation: hbChallengeBallPop 0.65s ease forwards;
+}
+
+.hb-challenge-draw-machine .winner-slot.is-open .ball::after {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(255, 210, 210, 0.6) 50%, transparent 72%);
+    animation: hbChallengeGlowPulse 1s ease infinite;
+}
+
+@keyframes hbChallengeBallEject {
+    0% { transform: translateY(-36px) scale(0.32); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translateY(2px) scale(1); opacity: 1; }
+}
+
+@keyframes hbChallengeBallPop {
+    0% { transform: translateY(2px) scale(1); }
+    45% { transform: translateY(10px) scale(1.14); }
+    100% { transform: translateY(6px) scale(1.06); }
+}
+
+@keyframes hbChallengeGlowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.92); }
+    50% { opacity: 1; transform: scale(1.08); }
+}
+
+.hb-challenge-draw-machine.shaking .globe-stack {
+    animation: hbChallengeGlobeShake 0.1s ease-in-out infinite;
+}
+
+@keyframes hbChallengeGlobeShake {
+    0%, 100% { transform: rotate(0deg) translateX(0); }
+    25% { transform: rotate(-1.2deg) translateX(-4px); }
+    75% { transform: rotate(1.2deg) translateX(4px); }
+}
+
+.hb-challenge-draw-overlay .btn-green.hb-challenge-draw-btn {
+    min-width: 200px;
+    padding: 13px 28px;
+    font-size: 1rem;
+    font-weight: 800;
+    border-radius: 14px;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.hb-challenge-draw-overlay .btn-green.hb-challenge-draw-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.hb-challenge-draw-reveal {
+    display: none;
+    width: min(92vw, 320px);
+    background: #fff;
+    border: 2px solid #2C7E34;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    text-align: center;
+    animation: hbChallengeRevealIn 0.35s ease;
+}
+
+.hb-challenge-draw-reveal.is-visible {
+    display: block;
+}
+
+.hb-challenge-draw-reveal__kicker {
+    margin: 0 0 0.35rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #2C7E34;
+}
+
+.hb-challenge-draw-reveal__title {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    line-height: 1.3;
+}
+
+.hb-challenge-draw-reveal__desc {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #4b5563;
+    line-height: 1.45;
+    max-height: 4.5em;
+    overflow: hidden;
+}
+
+@keyframes hbChallengeRevealIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hb-challenge-draw-overlay.is-fading {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+[data-hb-mode="dark"] .hb-challenge-draw-reveal {
+    background: #141a20;
+    border-color: #2e5a36;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+[data-hb-mode="dark"] .hb-challenge-draw-reveal__kicker {
+    color: #81c784;
+}
+
+[data-hb-mode="dark"] .hb-challenge-draw-reveal__title {
+    color: #f0f3f5;
+}
+
+[data-hb-mode="dark"] .hb-challenge-draw-reveal__desc {
+    color: #9aa8b4;
+}

@@ -1,0 +1,49 @@
+/* HappyBite — Green glow dot cursor (desktop / fine pointer only) */
+@media (pointer: fine) {
+    body.hb-custom-cursor,
+    body.hb-custom-cursor * {
+        cursor: none !important;
+    }
+
+    .hb-cursor-dot {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 14px;
+        height: 14px;
+        margin: 0;
+        border-radius: 50%;
+        background: #2c7e34;
+        box-shadow:
+            0 0 10px rgba(44, 126, 52, 0.75),
+            0 0 22px rgba(44, 126, 52, 0.45),
+            0 0 36px rgba(44, 126, 52, 0.2);
+        pointer-events: none;
+        z-index: 2147483646;
+        transform: translate(-50%, -50%);
+        transition: width 0.18s ease, height 0.18s ease, box-shadow 0.18s ease;
+        will-change: transform, width, height;
+    }
+
+    .hb-cursor-dot.is-hover {
+        width: 22px;
+        height: 22px;
+        box-shadow:
+            0 0 14px rgba(44, 126, 52, 0.9),
+            0 0 28px rgba(44, 126, 52, 0.55),
+            0 0 42px rgba(44, 126, 52, 0.28);
+    }
+
+    .hb-cursor-dot.is-hover::after {
+        content: '✦';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 11px;
+        line-height: 1;
+        font-weight: 700;
+        text-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+    }
+}

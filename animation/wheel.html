@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wheel — Lucky Draw</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: linear-gradient(180deg, #e8eaed 0%, #d5d9de 45%, #c5cad0 100%);
+      color: #37474f;
+      overflow: hidden;
+    }
+    .machine {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      filter: drop-shadow(0 28px 48px rgba(212, 5, 6, 0.28));
+    }
+    .stage {
+      position: relative;
+      width: min(88vw, 300px);
+      aspect-ratio: 1;
+    }
+    .pointer {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 6;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+    }
+    .pointer::before {
+      content: "";
+      display: block;
+      width: 18px;
+      height: 10px;
+      margin: 0 auto;
+      border-radius: 3px 3px 0 0;
+      background: linear-gradient(180deg, #FFE082 0%, #FFB300 55%, #FF8F00 100%);
+      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.65);
+    }
+    .pointer::after {
+      content: "";
+      display: block;
+      width: 0;
+      height: 0;
+      margin: 0 auto;
+      border-left: 11px solid transparent;
+      border-right: 11px solid transparent;
+      border-top: 22px solid #FFB300;
+      filter: drop-shadow(0 1px 0 #FF8F00);
+    }
+    .wheel-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      padding: 14px;
+      background:
+        radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.9) 0%, transparent 42%),
+        linear-gradient(145deg, #f04849 0%, #D40506 50%, #8A0304 100%);
+      border: 3px solid rgba(255, 180, 180, 0.55);
+      box-shadow:
+        inset 0 0 40px rgba(255, 180, 180, 0.25),
+        inset -8px -16px 32px rgba(100, 0, 0, 0.18),
+        0 12px 36px rgba(138, 3, 4, 0.22);
+    }
+    .wheel-frame::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 50%;
+      pointer-events: none;
+      box-shadow: inset 0 0 0 2px rgba(255, 213, 79, 0.35);
+    }
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      transform: rotate(0deg);
+      will-change: transform;
+      display: block;
+    }
+    .hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 22%;
+      height: 22%;
+      margin: -11% 0 0 -11%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 32% 28%, #FFF8E1 0%, #FFD54F 28%, #FFB300 58%, #FF8F00 100%);
+      box-shadow:
+        0 5px 16px rgba(0, 0, 0, 0.22),
+        inset 0 3px 8px rgba(255, 255, 255, 0.8),
+        inset 0 -4px 10px rgba(230, 81, 0, 0.35);
+      z-index: 4;
+      border: 2px solid #FFE082;
+    }
+    .hub::before {
+      content: "";
+      position: absolute;
+      top: 14%;
+      left: 50%;
+      width: 46%;
+      height: 46%;
+      margin-left: -23%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #FFFDE7 0%, #FFD54F 45%, #FF8F00 100%);
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.7);
+    }
+    .hub::after {
+      content: "";
+      position: absolute;
+      top: 22%;
+      left: 26%;
+      width: 28%;
+      height: 22%;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.72);
+    }
+    .wheel-stand {
+      width: 56px;
+      height: 20px;
+      margin-top: -4px;
+      background: linear-gradient(180deg, #D40506 0%, #A80405 100%);
+      border-radius: 0 0 8px 8px;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+    .base-platform {
+      width: 200px;
+      height: 26px;
+      margin-top: -2px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #D40506 0%, #8A0304 100%);
+      box-shadow: 0 8px 16px rgba(138, 3, 4, 0.25), inset 0 2px 4px rgba(255, 180, 180, 0.25);
+    }
+    .btn-draw {
+      padding: 0.95rem 2.8rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 999px;
+      cursor: pointer;
+      background: linear-gradient(180deg, #43a047 0%, #2C7E34 55%, #1b5e20 100%);
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(44, 126, 52, 0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-draw:hover { transform: translateY(-2px); }
+    .btn-draw:active { transform: translateY(1px); }
+    .btn-draw.is-stop {
+      background: linear-gradient(180deg, #ff7043 0%, #e65100 55%, #bf360c 100%);
+      box-shadow: 0 8px 24px rgba(230, 81, 0, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="machine">
+    <div class="stage">
+      <div class="pointer" aria-hidden="true"></div>
+      <div class="wheel-frame">
+        <svg class="wheel" id="wheel" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prize wheel">
+          <defs>
+            <clipPath id="wheelClip"><circle cx="100" cy="100" r="96"/></clipPath>
+            <radialGradient id="goldGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#FFF8E1"/>
+              <stop offset="45%" stop-color="#FFD54F"/>
+              <stop offset="100%" stop-color="#FF8F00"/>
+            </radialGradient>
+          </defs>
+          <g clip-path="url(#wheelClip)">
+            <path d="M100,100 L100,4 A96,96 0 0,1 167.8,32.2 Z" fill="#1565C0"/>
+            <path d="M100,100 L167.8,32.2 A96,96 0 0,1 196,100 Z" fill="#D40506"/>
+            <path d="M100,100 L196,100 A96,96 0 0,1 167.8,167.8 Z" fill="#FFFFFF"/>
+            <path d="M100,100 L167.8,167.8 A96,96 0 0,1 100,196 Z" fill="#43A047"/>
+            <path d="M100,100 L100,196 A96,96 0 0,1 32.2,167.8 Z" fill="#26C6DA"/>
+            <path d="M100,100 L32.2,167.8 A96,96 0 0,1 4,100 Z" fill="#FFEB3B"/>
+            <path d="M100,100 L4,100 A96,96 0 0,1 32.2,32.2 Z" fill="#FF9800"/>
+            <path d="M100,100 L32.2,32.2 A96,96 0 0,1 100,4 Z" fill="#8E24AA"/>
+          </g>
+          <g aria-hidden="true">
+            <circle cx="133.1" cy="20.6" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="179.4" cy="67.1" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="179.4" cy="132.9" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="132.9" cy="179.4" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="67.1" cy="179.4" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="20.6" cy="132.9" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="20.6" cy="67.1" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="66.9" cy="20.6" r="3" fill="url(#goldGrad)" stroke="#FF8F00" stroke-width="0.4"/>
+            <circle cx="100" cy="5" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="100" cy="1.2" r="2.4" fill="#FFE082"/>
+            <circle cx="167.2" cy="32.8" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="171" cy="29" r="2.4" fill="#FFE082"/>
+            <circle cx="195" cy="100" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="198.8" cy="100" r="2.4" fill="#FFE082"/>
+            <circle cx="167.2" cy="167.2" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="171" cy="171" r="2.4" fill="#FFE082"/>
+            <circle cx="100" cy="195" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="100" cy="198.8" r="2.4" fill="#FFE082"/>
+            <circle cx="32.8" cy="167.2" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="29" cy="171" r="2.4" fill="#FFE082"/>
+            <circle cx="5" cy="100" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="1.2" cy="100" r="2.4" fill="#FFE082"/>
+            <circle cx="32.8" cy="32.8" r="4.2" fill="url(#goldGrad)" stroke="#E65100" stroke-width="0.5"/>
+            <circle cx="29" cy="29" r="2.4" fill="#FFE082"/>
+          </g>
+          <circle cx="100" cy="100" r="96" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="3"/>
+          <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="hub" aria-hidden="true"></div>
+    </div>
+    <div class="wheel-stand" aria-hidden="true"></div>
+    <div class="base-platform" aria-hidden="true"></div>
+  </div>
+  <button type="button" class="btn-draw" id="btn">Draw</button>
+
+  <script>
+    (function () {
+      var wheel = document.getElementById('wheel');
+      var btn = document.getElementById('btn');
+      var angle = 0;
+      var velocity = 0;
+      var spinning = false;
+      var stopping = false;
+      var rafId = null;
+      var friction = 0.992;
+      var minStop = 0.08;
+      var audioCtx = null;
+      var lastTickSegment = -1;
+      var segmentCount = 8;
+      var segmentAngle = 360 / segmentCount;
+      var spinOsc = null;
+      var spinGain = null;
+
+      function getAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+
+      function startSpinHum() {
+        var ctx = getAudio();
+        stopSpinHum();
+        spinOsc = ctx.createOscillator();
+        spinGain = ctx.createGain();
+        spinOsc.type = 'sawtooth';
+        spinOsc.frequency.value = 52;
+        spinGain.gain.value = 0;
+        spinGain.gain.setTargetAtTime(0.028, ctx.currentTime, 0.12);
+        var filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 220;
+        spinOsc.connect(filter);
+        filter.connect(spinGain);
+        spinGain.connect(ctx.destination);
+        spinOsc.start();
+      }
+
+      function stopSpinHum() {
+        if (!spinOsc || !spinGain) return;
+        var osc = spinOsc;
+        var gain = spinGain;
+        spinOsc = null;
+        spinGain = null;
+        gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.06);
+        setTimeout(function () { try { osc.stop(); } catch (e) {} }, 100);
+      }
+
+      function updateSpinHum() {
+        if (!spinOsc || !spinGain) return;
+        spinOsc.frequency.setTargetAtTime(48 + velocity * 2.2, audioCtx.currentTime, 0.05);
+        spinGain.gain.setTargetAtTime(0.018 + velocity * 0.0012, audioCtx.currentTime, 0.05);
+      }
+
+      function playWheelTick(strength) {
+        var ctx = getAudio();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = 880 + strength * 120;
+        gain.gain.setValueAtTime(0.04 + strength * 0.03, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.035);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.04);
+      }
+
+      function playWheelStop() {
+        var ctx = getAudio();
+        var t = ctx.currentTime;
+
+        function note(freq, start, dur, vol, type) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = type || 'triangle';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, start);
+          gain.gain.linearRampToValueAtTime(vol, start + 0.018);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + dur + 0.05);
+        }
+
+        note(523.25, t, 0.1, 0.16, 'triangle');
+        note(659.25, t + 0.11, 0.12, 0.18, 'triangle');
+        note(783.99, t + 0.24, 0.14, 0.2, 'triangle');
+        [523.25, 659.25, 783.99, 1046.5].forEach(function (freq) {
+          note(freq, t + 0.38, 0.75, 0.1, 'sine');
+        });
+        note(1318.51, t + 0.42, 0.55, 0.07, 'sine');
+        note(1567.98, t + 0.5, 0.35, 0.05, 'sine');
+      }
+
+      function tick() {
+        if (spinning && !stopping) {
+          velocity = Math.min(velocity + 0.35, 28);
+        } else if (stopping) {
+          velocity *= friction;
+          if (velocity < minStop) {
+            velocity = 0;
+            stopping = false;
+            spinning = false;
+            stopSpinHum();
+            playWheelStop();
+            btn.textContent = 'Draw';
+            btn.classList.remove('is-stop');
+            cancelAnimationFrame(rafId);
+            rafId = null;
+            return;
+          }
+        }
+        angle = (angle + velocity) % 360;
+        var segment = Math.floor(angle / segmentAngle);
+        if (segment !== lastTickSegment) {
+          lastTickSegment = segment;
+          playWheelTick(Math.min(velocity / 28, 1));
+        }
+        updateSpinHum();
+        wheel.style.transform = 'rotate(' + angle + 'deg)';
+        rafId = requestAnimationFrame(tick);
+      }
+
+      function startSpin() {
+        if (spinning && !stopping) return;
+        stopping = false;
+        spinning = true;
+        if (velocity < 12) velocity = 12;
+        getAudio();
+        startSpinHum();
+        lastTickSegment = Math.floor(angle / segmentAngle);
+        btn.textContent = 'Stop';
+        btn.classList.add('is-stop');
+        if (!rafId) rafId = requestAnimationFrame(tick);
+      }
+
+      function requestStop() {
+        if (!spinning || stopping) return;
+        stopping = true;
+        btn.disabled = true;
+        btn.textContent = 'Stopping…';
+        setTimeout(function () {
+          btn.disabled = false;
+          btn.textContent = 'Stop';
+        }, 400);
+      }
+
+      btn.addEventListener('click', function () {
+        if (!spinning) {
+          startSpin();
+        } else if (!stopping) {
+          requestStop();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

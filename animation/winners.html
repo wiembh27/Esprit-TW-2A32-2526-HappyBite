@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Winners — Today's Challenge</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: #ffffff;
+      color: #263238;
+      overflow-x: hidden;
+      position: relative;
+    }
+    #fallLayer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .fall-piece {
+      position: absolute;
+      top: -90px;
+      animation: confettiFall linear forwards;
+      will-change: transform;
+    }
+    .fall-piece svg {
+      display: block;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08));
+    }
+    @keyframes confettiFall {
+      to {
+        transform: translateY(calc(100vh + 120px)) translateX(var(--drift, 0px)) rotate(var(--spin, 720deg));
+      }
+    }
+    .content {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+    h1 {
+      text-align: center;
+      font-size: clamp(1.6rem, 5vw, 2.35rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 2.5rem;
+      background: linear-gradient(90deg, #fff8e1 0%, #ffd54f 35%, #ffb300 65%, #fb8c00 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.02em;
+    }
+    .rank-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+    }
+    .rank-table th {
+      text-align: left;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #78909c;
+      padding: 0 1rem 0.5rem;
+      font-weight: 600;
+    }
+    .rank-table td {
+      padding: 1rem 1.1rem;
+      background: #f5f7f8;
+      border: 1px solid #e0e4e8;
+      font-size: 1rem;
+      color: #37474f;
+    }
+    .rank-table tr td:first-child {
+      border-radius: 12px 0 0 12px;
+      font-weight: 700;
+      color: #2C7E34;
+      width: 28%;
+    }
+    .rank-table tr td:last-child {
+      border-radius: 0 12px 12px 0;
+    }
+    .rank-table tbody tr:nth-child(1) td { border-left: 4px solid #ffd700; }
+    .rank-table tbody tr:nth-child(2) td { border-left: 4px solid #c0c0c0; }
+    .rank-table tbody tr:nth-child(3) td { border-left: 4px solid #cd7f32; }
+    .rank-table tbody tr.user-rank td {
+      background: #fff8f0;
+      border: 2px solid #fb8c00;
+      box-shadow: 0 4px 20px rgba(251, 140, 0, 0.15);
+    }
+    .rank-table tbody tr.user-rank td:first-child {
+      color: #e65100;
+      border-left: 4px solid #fb8c00;
+    }
+    .rank-table tbody tr.user-rank td:last-child {
+      font-weight: 600;
+      color: #5d4037;
+    }
+    .you-badge {
+      display: inline-block;
+      margin-left: 0.5rem;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      background: #fb8c00;
+      color: #fff;
+      font-weight: 700;
+      vertical-align: middle;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body>
+  <div id="fallLayer" aria-hidden="true"></div>
+  <main class="content">
+    <h1>Winners of today's challenge</h1>
+    <table class="rank-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1st</td>
+          <td>Alex Rivera</td>
+        </tr>
+        <tr>
+          <td>2nd</td>
+          <td>Jordan Lee</td>
+        </tr>
+        <tr>
+          <td>3rd</td>
+          <td>Sam Taylor</td>
+        </tr>
+        <tr>
+          <td>4th</td>
+          <td>Morgan Kim</td>
+        </tr>
+        <tr>
+          <td>5th</td>
+          <td>Casey Brooks</td>
+        </tr>
+        <tr class="user-rank">
+          <td>--- <span class="you-badge">YOU</span></td>
+          <td>Your score — keep going!</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <script>
+    (function () {
+      var layer = document.getElementById('fallLayer');
+      var confettiColors = ['#26c6da', '#66bb6a', '#ab47bc', '#ec407a', '#ffca28', '#42a5f5', '#ef5350', '#7e57c2'];
+      var audioCtx = null;
+      var ambientStarted = false;
+      var ambientTimer = null;
+
+      function getAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      }
+
+      function playWinnerChime() {
+        var ctx = getAudio();
+        var melody = [392, 493.88, 587.33, 783.99];
+        melody.forEach(function (freq, i) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.value = freq;
+          var t = ctx.currentTime + i * 0.22;
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.045, t + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.95);
+        });
+      }
+
+      function playRankReveal() {
+        var ctx = getAudio();
+        var rows = document.querySelectorAll('.rank-table tbody tr');
+        rows.forEach(function (row, i) {
+          setTimeout(function () {
+            var osc = ctx.createOscillator();
+            var gain = ctx.createGain();
+            var isUser = row.classList.contains('user-rank');
+            osc.type = 'sine';
+            osc.frequency.value = isUser ? 523.25 : 329.63 + i * 55;
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(isUser ? 0.08 : 0.05, audioCtx.currentTime + 0.03);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (isUser ? 0.7 : 0.4));
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + (isUser ? 0.72 : 0.42));
+          }, 180 + i * 140);
+        });
+      }
+
+      function startAmbient() {
+        if (ambientStarted) return;
+        ambientStarted = true;
+        getAudio();
+        playWinnerChime();
+        playRankReveal();
+        ambientTimer = setInterval(playWinnerChime, 5200);
+      }
+
+      document.addEventListener('click', startAmbient, { once: true });
+      document.addEventListener('keydown', startAmbient, { once: true });
+      document.addEventListener('touchstart', startAmbient, { once: true, passive: true });
+      window.addEventListener('load', function () {
+        getAudio().resume().then(function () {
+          if (audioCtx && audioCtx.state === 'running') startAmbient();
+        }).catch(function () {});
+      });
+
+      function svgDot(color) {
+        return '<svg viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="' + color + '"/></svg>';
+      }
+
+      function svgTri(color) {
+        return '<svg viewBox="0 0 16 14" xmlns="http://www.w3.org/2000/svg"><polygon points="8,0 16,14 0,14" fill="' + color + '"/></svg>';
+      }
+
+      function svgStrip(color) {
+        return '<svg viewBox="0 0 10 22" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="0" width="8" height="22" rx="2" fill="' + color + '"/></svg>';
+      }
+
+      function svgStreamerCurl(color) {
+        return '<svg viewBox="0 0 28 90" xmlns="http://www.w3.org/2000/svg">'
+          + '<path d="M14 2 C22 18 6 32 14 46 C22 60 6 74 14 88" fill="none" stroke="' + color + '" stroke-width="6" stroke-linecap="round"/>'
+          + '<path d="M14 2 C6 18 22 32 14 46 C6 60 22 74 14 88" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round" opacity="0.45"/>'
+          + '</svg>';
+      }
+
+      function svgStreamerWave(color) {
+        return '<svg viewBox="0 0 80 28" xmlns="http://www.w3.org/2000/svg">'
+          + '<path d="M2 14 Q20 2 38 14 T74 14" fill="none" stroke="' + color + '" stroke-width="7" stroke-linecap="round"/>'
+          + '</svg>';
+      }
+
+      function svgStreamerSpiral(color) {
+        return '<svg viewBox="0 0 36 80" xmlns="http://www.w3.org/2000/svg">'
+          + '<path d="M18 4 C28 12 8 22 18 30 C28 38 8 48 18 56 C28 64 10 72 18 78" fill="none" stroke="' + color + '" stroke-width="8" stroke-linecap="round"/>'
+          + '<circle cx="18" cy="8" r="5" fill="' + color + '"/>'
+          + '</svg>';
+      }
+
+      var pieceTypes = [
+        { html: function () { return svgDot(pickColor()); }, w: 10, h: 10, weight: 4 },
+        { html: function () { return svgTri(pickColor()); }, w: 14, h: 12, weight: 3 },
+        { html: function () { return svgStrip(pickColor()); }, w: 8, h: 20, weight: 4 },
+        { html: function () { return svgStreamerCurl('#29b6f6'); }, w: 22, h: 70, weight: 2 },
+        { html: function () { return svgStreamerWave('#ffca28'); }, w: 64, h: 22, weight: 2 },
+        { html: function () { return svgStreamerSpiral('#f06292'); }, w: 28, h: 72, weight: 2 }
+      ];
+
+      function pickColor() {
+        return confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      }
+
+      function pickPiece() {
+        var total = 0;
+        for (var i = 0; i < pieceTypes.length; i++) total += pieceTypes[i].weight;
+        var r = Math.random() * total;
+        for (var j = 0; j < pieceTypes.length; j++) {
+          r -= pieceTypes[j].weight;
+          if (r <= 0) return pieceTypes[j];
+        }
+        return pieceTypes[0];
+      }
+
+      function spawn() {
+        var type = pickPiece();
+        var el = document.createElement('div');
+        el.className = 'fall-piece';
+        el.innerHTML = type.html();
+        var scale = 0.7 + Math.random() * 0.9;
+        var w = type.w * scale;
+        var h = type.h * scale;
+        el.style.width = w + 'px';
+        el.style.height = h + 'px';
+        el.style.left = Math.random() * 100 + '%';
+        el.style.opacity = (0.75 + Math.random() * 0.25).toString();
+        var duration = 4 + Math.random() * 7;
+        var drift = (Math.random() - 0.5) * 120;
+        var spin = (Math.random() > 0.5 ? 1 : -1) * (360 + Math.random() * 720) + 'deg';
+        el.style.setProperty('--drift', drift + 'px');
+        el.style.setProperty('--spin', spin);
+        el.style.animationDuration = duration + 's';
+        el.style.animationDelay = (Math.random() * 0.8) + 's';
+        layer.appendChild(el);
+        setTimeout(function () {
+          if (el.parentNode) el.parentNode.removeChild(el);
+        }, (duration + 1.2) * 1000);
+      }
+
+      for (var i = 0; i < 32; i++) {
+        setTimeout(spawn, i * 140);
+      }
+      setInterval(spawn, 280);
+    })();
+  </script>
+</body>
+</html>
